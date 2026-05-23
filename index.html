@@ -6,7 +6,7 @@
 
   <title>SINC – Sistema de Notificação de Cessão de Crédito</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -20,27 +20,17 @@
     }
 
     :root {
-      --blue:       #185FA5;
+      --blue: #185FA5;
       --blue-light: #E6F1FB;
-      --blue-dark:  #0C447C;
-
-      --green-text: #3B6D11;
-
-      --amber-bg:   #FAEEDA;
-      --amber-text: #854F0B;
-
-      --bg:         #F4F3EF;
-      --surface:    #FFFFFF;
-
-      --border:     rgba(0,0,0,0.1);
-      --border-md:  rgba(0,0,0,0.18);
-
-      --text:       #1A1A1A;
+      --bg: #F4F3EF;
+      --surface: #FFFFFF;
+      --border: rgba(0,0,0,0.1);
+      --border-md: rgba(0,0,0,0.18);
+      --text: #1A1A1A;
       --text-muted: #666660;
       --text-faint: #999994;
-
-      --radius:     12px;
-      --radius-sm:  8px;
+      --radius: 12px;
+      --radius-sm: 8px;
     }
 
     body {
@@ -74,69 +64,17 @@
       color: white;
       font-size: 16px;
       font-weight: 600;
-      flex-shrink: 0;
     }
 
     .header-text h1 {
       font-size: 18px;
       font-weight: 600;
-      color: var(--text);
     }
 
     .header-text p {
       font-size: 13px;
       color: var(--text-muted);
-      margin-top: 1px;
-    }
-
-    .api-banner {
-      width: 100%;
-      max-width: 600px;
-      background: var(--amber-bg);
-      border: 1px solid rgba(133,79,11,0.2);
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      color: var(--amber-text);
-      line-height: 1.6;
-    }
-
-    .api-banner strong {
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .api-key-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .api-key-row input {
-      flex: 1;
-      padding: 10px 12px;
-      border: 1px solid rgba(133,79,11,0.3);
-      border-radius: var(--radius-sm);
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      outline: none;
-    }
-
-    .api-key-row button {
-      padding: 10px 14px;
-      background: var(--amber-text);
-      color: white;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-    }
-
-    .api-saved {
-      display: none;
-      margin-top: 10px;
-      color: var(--green-text);
-      font-size: 13px;
+      margin-top: 2px;
     }
 
     .card {
@@ -145,7 +83,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 22px 24px;
+      padding: 24px;
     }
 
     .card-label {
@@ -174,10 +112,10 @@
     }
 
     .hint {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 12px;
       line-height: 1.6;
+      margin-bottom: 14px;
     }
 
     input[type="file"] {
@@ -187,15 +125,15 @@
       border-radius: var(--radius-sm);
       background: var(--bg);
       font-size: 13px;
+      margin-bottom: 14px;
     }
 
     textarea {
       width: 100%;
-      min-height: 260px;
-      margin-top: 14px;
-      padding: 14px;
+      min-height: 320px;
       border: 1px solid var(--border-md);
       border-radius: var(--radius-sm);
+      padding: 14px;
       background: var(--bg);
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
@@ -240,40 +178,24 @@
 
   </div>
 
-  <div class="api-banner">
-
-    <strong>🔑 Configure sua chave da API Anthropic</strong>
-
-    Informe sua chave para usar a extração automática.
-
-    <div class="api-key-row">
-      <input type="password" id="api-key-input" placeholder="sk-ant-...">
-      <button onclick="salvarChave()">Salvar</button>
-    </div>
-
-    <div class="api-saved" id="api-saved">
-      ✓ Chave salva com sucesso
-    </div>
-
-  </div>
-
   <div class="card">
 
     <div class="card-label">
       <span class="step-num">1</span>
-      Dados da Nota Fiscal
+      Leitura da Nota Fiscal
     </div>
 
     <div class="hint">
       Selecione um PDF da nota fiscal.
       O sistema irá identificar automaticamente:
-      emitente, destinatário, número da NF, valor e vencimento.
+      emitente, destinatário, número da NF,
+      valor e vencimento.
     </div>
 
     <input type="file" id="pdf-upload" accept="application/pdf">
 
     <textarea
-      id="texto-nf"
+      id="resultado"
       placeholder="As informações extraídas aparecerão aqui..."
     ></textarea>
 
@@ -294,200 +216,173 @@
 
   let textoPdfCompleto = '';
 
-  function getChave() {
-    return localStorage.getItem('sinc_api_key') || '';
-  }
+  async function extrairTextoPDF(file) {
 
-  function salvarChave() {
+    const resultado = document.getElementById('resultado');
 
-    const val = document.getElementById('api-key-input').value.trim();
-
-    if (!val) {
-      alert('Digite sua chave da API.');
-      return;
-    }
-
-    localStorage.setItem('sinc_api_key', val);
-
-    document.getElementById('api-saved').style.display = 'block';
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-
-    const chave = getChave();
-
-    if (chave) {
-      document.getElementById('api-key-input').value = chave;
-      document.getElementById('api-saved').style.display = 'block';
-    }
-
-    const pdfUpload = document.getElementById('pdf-upload');
-
-    pdfUpload.addEventListener('change', async (event) => {
-
-      const file = event.target.files[0];
-
-      if (!file) return;
-
-      const textarea = document.getElementById('texto-nf');
-
-      textarea.value = 'Lendo PDF...';
-
-      try {
-
-        const arrayBuffer = await file.arrayBuffer();
-
-        const pdf = await pdfjsLib.getDocument({
-          data: arrayBuffer
-        }).promise;
-
-        textoPdfCompleto = '';
-
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-
-          textarea.value =
-            `Lendo página ${pageNum} de ${pdf.numPages}...`;
-
-          const page = await pdf.getPage(pageNum);
-
-          const textContent = await page.getTextContent();
-
-          const textoPagina = textContent.items
-            .map(item => item.str)
-            .join(' ');
-
-          textoPdfCompleto += textoPagina + '\n\n';
-        }
-
-        textarea.value =
-`PDF carregado com sucesso.
-
-Clique em "Extrair dados automaticamente".`;
-
-      } catch (erro) {
-
-        console.error(erro);
-
-        textarea.value = '';
-
-        alert(
-          'Não foi possível ler este PDF.\n\n' +
-          'O arquivo pode ser escaneado, protegido ou incompatível.'
-        );
-      }
-
-    });
-
-  });
-
-  async function extrairDados() {
-
-    if (!textoPdfCompleto.trim()) {
-      alert('Selecione um PDF primeiro.');
-      return;
-    }
-
-    const chave = getChave();
-
-    if (!chave) {
-      alert('Configure sua chave da API Anthropic.');
-      return;
-    }
-
-    const textarea = document.getElementById('texto-nf');
-
-    textarea.value = 'Extraindo dados da nota fiscal...';
+    resultado.value = 'Lendo PDF...';
 
     try {
 
-      const res = await fetch(
-        'https://api.anthropic.com/v1/messages',
-        {
-          method: 'POST',
+      const arrayBuffer = await file.arrayBuffer();
 
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': chave,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
+      const pdf = await pdfjsLib.getDocument({
+        data: arrayBuffer
+      }).promise;
 
-          body: JSON.stringify({
+      textoPdfCompleto = '';
 
-            model: 'claude-sonnet-4-20250514',
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
 
-            max_tokens: 300,
+        resultado.value =
+          `Lendo página ${pageNum} de ${pdf.numPages}...`;
 
-            messages: [{
-              role: 'user',
+        const page = await pdf.getPage(pageNum);
 
-              content:
-`Extraia da nota fiscal APENAS:
+        const textContent = await page.getTextContent();
 
-- Emitente
-- Destinatário
-- Número da nota fiscal
-- Valor
-- Data de vencimento
+        const textoPagina = textContent.items
+          .map(item => item.str)
+          .join(' ');
 
-Retorne SOMENTE um JSON válido:
-
-{
-  "emitente": "",
-  "destinatario": "",
-  "numero": "",
-  "valor": "",
-  "vencimento": ""
-}
-
-Texto da nota fiscal:
-
-${textoPdfCompleto.substring(0, 4000)}`
-            }]
-          })
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Erro na API');
+        textoPdfCompleto += textoPagina + '\n\n';
       }
 
-      const data = await res.json();
+      resultado.value =
+`PDF carregado com sucesso.
 
-      const raw = data.content
-        .map(i => i.text || '')
-        .join('')
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
-
-      const campos = JSON.parse(raw);
-
-      textarea.value =
-`EMITENTE:
-${campos.emitente || '-'}
-
-DESTINATÁRIO:
-${campos.destinatario || '-'}
-
-NÚMERO DA NF:
-${campos.numero || '-'}
-
-VALOR:
-${campos.valor || '-'}
-
-VENCIMENTO:
-${campos.vencimento || '-'}`;
+Clique em "Extrair dados automaticamente".`;
 
     } catch (erro) {
 
       console.error(erro);
 
-      textarea.value = '';
+      resultado.value = '';
 
-      alert('Erro ao extrair dados da nota fiscal.');
-
+      alert(
+        'Não foi possível ler este PDF.\n\n' +
+        'O arquivo pode ser escaneado ou incompatível.'
+      );
     }
+
+  }
+
+  document
+    .getElementById('pdf-upload')
+    .addEventListener('change', async (event) => {
+
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      await extrairTextoPDF(file);
+
+    });
+
+  function encontrarValor(texto) {
+
+    const regex =
+      /R\$\s?[\d\.\,]+/g;
+
+    const encontrados = texto.match(regex);
+
+    return encontrados ? encontrados[0] : '-';
+  }
+
+  function encontrarNumeroNF(texto) {
+
+    const regex =
+      /(NF|NOTA FISCAL|Nº|NUMERO)[^\d]{0,10}(\d{3,})/i;
+
+    const match = texto.match(regex);
+
+    return match ? match[2] : '-';
+  }
+
+  function encontrarData(texto) {
+
+    const regex =
+      /\d{2}\/\d{2}\/\d{4}/g;
+
+    const datas = texto.match(regex);
+
+    return datas ? datas[datas.length - 1] : '-';
+  }
+
+  function encontrarEmitente(texto) {
+
+    const linhas = texto.split('\n');
+
+    for (let linha of linhas) {
+
+      if (
+        linha.toUpperCase().includes('LTDA') ||
+        linha.toUpperCase().includes('S/A') ||
+        linha.toUpperCase().includes('ME')
+      ) {
+        return linha.trim();
+      }
+    }
+
+    return '-';
+  }
+
+  function encontrarDestinatario(texto) {
+
+    const linhas = texto.split('\n');
+
+    for (let linha of linhas) {
+
+      if (
+        linha.toUpperCase().includes('DESTINATÁRIO') ||
+        linha.toUpperCase().includes('CLIENTE')
+      ) {
+        return linha.trim();
+      }
+    }
+
+    return '-';
+  }
+
+  function extrairDados() {
+
+    if (!textoPdfCompleto.trim()) {
+
+      alert('Selecione um PDF primeiro.');
+
+      return;
+    }
+
+    const emitente =
+      encontrarEmitente(textoPdfCompleto);
+
+    const destinatario =
+      encontrarDestinatario(textoPdfCompleto);
+
+    const numeroNF =
+      encontrarNumeroNF(textoPdfCompleto);
+
+    const valor =
+      encontrarValor(textoPdfCompleto);
+
+    const vencimento =
+      encontrarData(textoPdfCompleto);
+
+    document.getElementById('resultado').value =
+`EMITENTE:
+${emitente}
+
+DESTINATÁRIO:
+${destinatario}
+
+NÚMERO DA NF:
+${numeroNF}
+
+VALOR:
+${valor}
+
+VENCIMENTO:
+${vencimento}`;
 
   }
 

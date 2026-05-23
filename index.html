@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <!-- PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
 
@@ -187,33 +187,10 @@
       justify-content: center;
     }
 
-    .tabs {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 9px;
-      font-size: 13px;
-      border: none;
-      cursor: pointer;
-      background: var(--bg);
-      color: var(--text-muted);
-    }
-
-    .tab.active {
-      background: var(--blue);
-      color: white;
-    }
-
     .hint {
       font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       line-height: 1.6;
     }
 
@@ -227,10 +204,10 @@
       color: var(--text);
       background: var(--bg);
       resize: vertical;
-      min-height: 180px;
+      min-height: 220px;
       outline: none;
       line-height: 1.6;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .btn {
@@ -291,7 +268,7 @@
 
     <strong>🔑 Configure sua chave da API Anthropic</strong>
 
-    Para usar a extração automática de dados, informe sua chave da API.
+    Informe sua chave para usar a extração automática de dados.
 
     <div class="api-key-row">
       <input type="password" id="api-key-input" placeholder="sk-ant-...">
@@ -311,29 +288,21 @@
       Dados da nota fiscal
     </div>
 
-    <div class="tabs">
-      <button class="tab active">PDF</button>
+    <div class="hint">
+      Selecione um PDF da nota fiscal abaixo.
+      O sistema irá ler automaticamente o conteúdo.
     </div>
 
-    <div id="painel-texto">
+    <input type="file" id="pdf-upload" accept="application/pdf">
 
-      <div class="hint">
-        Selecione o PDF da nota fiscal abaixo.
-        O sistema irá extrair o texto automaticamente.
-      </div>
+    <textarea
+      id="texto-nf"
+      placeholder="O texto extraído do PDF aparecerá aqui..."
+    ></textarea>
 
-      <input type="file" id="pdf-upload" accept="application/pdf">
-
-      <textarea
-        id="texto-nf"
-        placeholder="O texto extraído aparecerá aqui..."
-      ></textarea>
-
-      <button class="btn btn-primary" onclick="extrairDados()">
-        Extrair dados automaticamente
-      </button>
-
-    </div>
+    <button class="btn btn-primary" onclick="extrairDados()">
+      Extrair dados automaticamente
+    </button>
 
   </div>
 
@@ -344,7 +313,7 @@
 <script>
 
   pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
   function getChave() {
     return localStorage.getItem('sinc_api_key') || '';
@@ -355,7 +324,7 @@
     const val = document.getElementById('api-key-input').value.trim();
 
     if (!val) {
-      alert('Digite a chave.');
+      alert('Digite sua chave da API.');
       return;
     }
 
@@ -364,7 +333,7 @@
     document.getElementById('api-saved').style.display = 'flex';
   }
 
-  window.addEventListener('load', () => {
+  window.addEventListener('DOMContentLoaded', () => {
 
     const k = getChave();
 
@@ -375,55 +344,61 @@
 
     const pdfUpload = document.getElementById('pdf-upload');
 
+    if (!pdfUpload) {
+      console.error('Input PDF não encontrado');
+      return;
+    }
+
     pdfUpload.addEventListener('change', async (event) => {
 
       const file = event.target.files[0];
 
       if (!file) return;
 
+      const textarea = document.getElementById('texto-nf');
+
+      textarea.value = 'Lendo PDF...';
+
       try {
 
-        const textarea = document.getElementById('texto-nf');
+        const arrayBuffer = await file.arrayBuffer();
 
-        textarea.value = 'Lendo PDF...';
+        const pdf = await pdfjsLib.getDocument({
+          data: arrayBuffer
+        }).promise;
 
-        const reader = new FileReader();
+        let textoCompleto = '';
 
-        reader.onload = async function() {
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
 
-          const typedArray = new Uint8Array(this.result);
+          textarea.value =
+            `Lendo página ${pageNum} de ${pdf.numPages}...`;
 
-          const pdf = await pdfjsLib.getDocument(typedArray).promise;
+          const page = await pdf.getPage(pageNum);
 
-          let textoCompleto = '';
+          const textContent = await page.getTextContent();
 
-          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const textoPagina = textContent.items
+            .map(item => item.str)
+            .join(' ');
 
-            textarea.value =
-              `Lendo página ${pageNum} de ${pdf.numPages}...`;
+          textoCompleto += textoPagina + '\n\n';
+        }
 
-            const page = await pdf.getPage(pageNum);
+        textarea.value = textoCompleto.trim();
 
-            const textContent = await page.getTextContent();
-
-            const textoPagina = textContent.items
-              .map(item => item.str)
-              .join(' ');
-
-            textoCompleto += textoPagina + '\n\n';
-          }
-
-          textarea.value = textoCompleto;
-        };
-
-        reader.readAsArrayBuffer(file);
+        console.log('PDF lido com sucesso');
 
       } catch (erro) {
 
-        console.error(erro);
+        console.error('ERRO PDF:', erro);
 
-        alert('Erro ao ler o PDF.');
+        textarea.value = '';
 
+        alert(
+          'Não foi possível ler este PDF.\n\n' +
+          'O arquivo pode ser escaneado, protegido ou incompatível.'
+        );
       }
 
     });
@@ -470,7 +445,7 @@
               role: 'user',
 
               content:
-`Extraia os dados desta nota fiscal e retorne SOMENTE JSON:
+`Extraia os dados desta nota fiscal e retorne SOMENTE um JSON válido:
 
 {
   "emitente":"",
@@ -486,17 +461,35 @@ ${texto.substring(0, 3000)}`
         }
       );
 
+      if (!res.ok) {
+        throw new Error('Erro na API');
+      }
+
       const data = await res.json();
 
-      alert('Dados extraídos com sucesso.');
+      const raw = data.content
+        .map(i => i.text || '')
+        .join('')
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
 
-      console.log(data);
+      const campos = JSON.parse(raw);
+
+      alert(
+        `Dados extraídos com sucesso!\n\n` +
+        `Emitente: ${campos.emitente}\n` +
+        `Destinatário: ${campos.destinatario}\n` +
+        `NF: ${campos.numero}`
+      );
+
+      console.log(campos);
 
     } catch (erro) {
 
       console.error(erro);
 
-      alert('Erro ao extrair dados.');
+      alert('Erro ao extrair dados da nota fiscal.');
 
     }
 

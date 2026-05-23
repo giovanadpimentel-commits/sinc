@@ -282,66 +282,58 @@ Clique em "Extrair dados automaticamente".`;
   function encontrarValor(texto) {
 
     const regex =
-      /R\$\s?[\d\.\,]+/g;
+      /VALOR TOTAL DO SERVIÇO\s*=\s*(R\$\s?[\d\.\,]+)/i;
 
-    const encontrados = texto.match(regex);
+    const match = texto.match(regex);
 
-    return encontrados ? encontrados[0] : '-';
+    if (match) return match[1];
+
+    const fallback =
+      texto.match(/R\$\s?[\d\.\,]+/);
+
+    return fallback ? fallback[0] : '-';
   }
 
   function encontrarNumeroNF(texto) {
 
     const regex =
-      /(NF|NOTA FISCAL|Nº|NUMERO)[^\d]{0,10}(\d{3,})/i;
+      /Número da Nota.*?(\d{3,})/is;
 
     const match = texto.match(regex);
 
-    return match ? match[2] : '-';
+    return match ? match[1] : '-';
   }
 
   function encontrarData(texto) {
 
     const regex =
-      /\d{2}\/\d{2}\/\d{4}/g;
+      /Vencimento[:\s]*([0-9]{2}[\.\/][0-9]{2}[\.\/][0-9]{4})/i;
 
-    const datas = texto.match(regex);
+    const match = texto.match(regex);
 
-    return datas ? datas[datas.length - 1] : '-';
+    if (!match) return '-';
+
+    return match[1].replace(/\./g, '/');
   }
 
   function encontrarEmitente(texto) {
 
-    const linhas = texto.split('\n');
+    const regex =
+      /PRESTADOR DE SERVIÇOS[\s\S]*?Nome\/Razão Social:\s*(.*?)\s*(?:RUA|R |AV|ALAMEDA|ROD|CEP:)/i;
 
-    for (let linha of linhas) {
+    const match = texto.match(regex);
 
-      if (
-        linha.toUpperCase().includes('LTDA') ||
-        linha.toUpperCase().includes('S/A') ||
-        linha.toUpperCase().includes('ME')
-      ) {
-        return linha.trim();
-      }
-    }
-
-    return '-';
+    return match ? match[1].trim() : '-';
   }
 
   function encontrarDestinatario(texto) {
 
-    const linhas = texto.split('\n');
+    const regex =
+      /TOMADOR DE SERVIÇOS[\s\S]*?Nome\/Razão Social:\s*(.*?)\s*(?:CPF|CNPJ|Inscrição Municipal)/i;
 
-    for (let linha of linhas) {
+    const match = texto.match(regex);
 
-      if (
-        linha.toUpperCase().includes('DESTINATÁRIO') ||
-        linha.toUpperCase().includes('CLIENTE')
-      ) {
-        return linha.trim();
-      }
-    }
-
-    return '-';
+    return match ? match[1].trim() : '-';
   }
 
   function extrairDados() {

@@ -3,29 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>SINC – Sistema de Notificação de Cessão de Crédito</title>
+
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
       --blue:       #185FA5;
       --blue-light: #E6F1FB;
       --blue-mid:   #378ADD;
       --blue-dark:  #0C447C;
+
       --green-bg:   #EAF3DE;
       --green-text: #3B6D11;
+
       --red-bg:     #FCEBEB;
       --red-text:   #A32D2D;
+
       --amber-bg:   #FAEEDA;
       --amber-text: #854F0B;
+
       --bg:         #F4F3EF;
       --surface:    #FFFFFF;
+
       --border:     rgba(0,0,0,0.1);
       --border-md:  rgba(0,0,0,0.18);
+
       --text:       #1A1A1A;
       --text-muted: #666660;
       --text-faint: #999994;
+
       --radius:     12px;
       --radius-sm:  8px;
     }
@@ -41,7 +59,6 @@
       padding: 32px 16px 60px;
     }
 
-    /* HEADER */
     .app-header {
       width: 100%;
       max-width: 600px;
@@ -52,25 +69,34 @@
     }
 
     .logo {
-      width: 42px; height: 42px;
+      width: 42px;
+      height: 42px;
       background: var(--blue);
       border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 16px; font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
       flex-shrink: 0;
     }
 
     .header-text h1 {
-      font-size: 18px; font-weight: 600; color: var(--text);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
     }
 
     .header-text p {
-      font-size: 13px; color: var(--text-muted); margin-top: 1px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 1px;
     }
 
-    /* API KEY BANNER */
     .api-banner {
-      width: 100%; max-width: 600px;
+      width: 100%;
+      max-width: 600px;
       background: var(--amber-bg);
       border: 1px solid rgba(133,79,11,0.2);
       border-radius: var(--radius);
@@ -81,10 +107,16 @@
       line-height: 1.6;
     }
 
-    .api-banner strong { font-weight: 600; display: block; margin-bottom: 6px; }
+    .api-banner strong {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
 
     .api-key-row {
-      display: flex; gap: 8px; margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
     }
 
     .api-key-row input {
@@ -99,8 +131,6 @@
       outline: none;
     }
 
-    .api-key-row input:focus { border-color: var(--blue); }
-
     .api-key-row button {
       padding: 8px 14px;
       background: var(--amber-text);
@@ -111,10 +141,7 @@
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
       cursor: pointer;
-      white-space: nowrap;
     }
-
-    .api-key-row button:hover { opacity: 0.85; }
 
     .api-saved {
       display: none;
@@ -125,18 +152,15 @@
       margin-top: 8px;
     }
 
-    /* CARDS */
     .card {
-      width: 100%; max-width: 600px;
+      width: 100%;
+      max-width: 600px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 22px 24px;
       margin-bottom: 16px;
-      animation: fadeIn 0.25s ease;
     }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
     .card-label {
       font-size: 11px;
@@ -151,17 +175,18 @@
     }
 
     .step-num {
-      width: 22px; height: 22px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--blue-light);
       color: var(--blue);
       font-size: 11px;
       font-weight: 600;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* TABS */
     .tabs {
       display: flex;
       border: 1px solid var(--border);
@@ -174,13 +199,10 @@
       flex: 1;
       padding: 9px;
       font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
       border: none;
       cursor: pointer;
       background: var(--bg);
       color: var(--text-muted);
-      transition: all 0.15s;
     }
 
     .tab.active {
@@ -188,7 +210,6 @@
       color: white;
     }
 
-    /* TEXTAREA */
     .hint {
       font-size: 12px;
       color: var(--text-muted);
@@ -206,48 +227,12 @@
       color: var(--text);
       background: var(--bg);
       resize: vertical;
-      min-height: 130px;
+      min-height: 180px;
       outline: none;
       line-height: 1.6;
-      transition: border-color 0.15s;
+      margin-top: 10px;
     }
 
-    textarea:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(56,138,221,0.12); }
-
-    /* FIELDS */
-    .fields-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .field { display: flex; flex-direction: column; gap: 4px; }
-    .field.full { grid-column: 1 / -1; }
-
-    .field label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
-    .field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border-md);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
-    }
-
-    .field input:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(56,138,221,0.12); }
-
-    /* BUTTONS */
     .btn {
       display: flex;
       align-items: center;
@@ -257,93 +242,28 @@
       border-radius: var(--radius-sm);
       font-size: 14px;
       font-weight: 500;
-      font-family: 'DM Sans', sans-serif;
       cursor: pointer;
       border: none;
       width: 100%;
       margin-top: 14px;
-      transition: opacity 0.15s, transform 0.1s, background 0.15s;
     }
 
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+    }
 
-    .btn-primary { background: var(--blue); color: white; }
-    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-muted);
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
       border: 1px solid var(--border-md);
-    }
-
-    .btn-ghost:hover:not(:disabled) { background: var(--bg); color: var(--text); }
-
-    /* STATUS */
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 14px;
       border-radius: var(--radius-sm);
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-
-    .status-loading { background: var(--blue-light); color: var(--blue); }
-    .status-error   { background: var(--red-bg); color: var(--red-text); }
-    .status-ok      { background: var(--green-bg); color: var(--green-text); }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin { display: inline-block; animation: spin 0.9s linear infinite; }
-
-    /* NOTIFICATION */
-    .notif-box {
       background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 18px;
-      font-size: 13.5px;
-      line-height: 1.8;
-      color: var(--text);
-      white-space: pre-wrap;
       font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
     }
 
-    .friday-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: var(--amber-bg);
-      color: var(--amber-text);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 20px;
-      margin-left: 8px;
-      letter-spacing: 0.03em;
-    }
-
-    .copy-ok {
-      display: none;
-      font-size: 12px;
-      color: var(--green-text);
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      margin-top: 8px;
-      font-weight: 500;
-    }
-
-    .divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-    .edit-hint {
-      font-size: 12px;
-      color: var(--text-faint);
-      margin-top: 10px;
-    }
-
-    /* FOOTER */
     .footer {
       max-width: 600px;
       width: 100%;
@@ -353,324 +273,236 @@
       margin-top: 8px;
     }
 
-    @media (max-width: 480px) {
-      .fields-grid { grid-template-columns: 1fr; }
-      .field.full { grid-column: 1; }
-      body { padding: 20px 12px 48px; }
-    }
   </style>
 </head>
+
 <body>
 
   <div class="app-header">
     <div class="logo">S</div>
+
     <div class="header-text">
       <h1>SINC</h1>
       <p>Sistema de Notificação de Cessão de Crédito</p>
     </div>
   </div>
 
-  <!-- API KEY -->
-  <div class="api-banner" id="api-banner">
+  <div class="api-banner">
+
     <strong>🔑 Configure sua chave da API Anthropic</strong>
-    Para usar a extração automática de dados, informe sua chave da API. Ela fica salva só no seu navegador.
+
+    Para usar a extração automática de dados, informe sua chave da API.
+
     <div class="api-key-row">
       <input type="password" id="api-key-input" placeholder="sk-ant-...">
       <button onclick="salvarChave()">Salvar</button>
     </div>
-    <div class="api-saved" id="api-saved">✓ Chave salva! Extração automática ativada.</div>
-    <div style="margin-top:10px; font-size:12px; color: var(--amber-text);">
-      Não tem chave? Use a aba "Preencher manualmente" — funciona sem API.
-      <br>Obtenha sua chave em: <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue);">console.anthropic.com</a>
+
+    <div class="api-saved" id="api-saved">
+      ✓ Chave salva!
     </div>
+
   </div>
 
-  <!-- ETAPA 1 -->
   <div class="card">
-    <div class="card-label"><span class="step-num">1</span> Dados da nota fiscal</div>
+
+    <div class="card-label">
+      <span class="step-num">1</span>
+      Dados da nota fiscal
+    </div>
 
     <div class="tabs">
-      <button class="tab active" id="tab-texto" onclick="setTab('texto')">Colar texto do PDF</button>
-      <button class="tab" id="tab-manual" onclick="setTab('manual')">Preencher manualmente</button>
+      <button class="tab active">PDF</button>
     </div>
 
     <div id="painel-texto">
-      <div class="hint">Abra o PDF da nota fiscal, selecione todo o texto (Ctrl+A), copie (Ctrl+C) e cole abaixo.</div>
-      <textarea id="texto-nf" placeholder="Cole aqui o conteúdo da nota fiscal..."></textarea>
-      <button class="btn btn-primary" id="btn-extrair" onclick="extrairDados()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+
+      <div class="hint">
+        Selecione o PDF da nota fiscal abaixo.
+        O sistema irá extrair o texto automaticamente.
+      </div>
+
+      <input type="file" id="pdf-upload" accept="application/pdf">
+
+      <textarea
+        id="texto-nf"
+        placeholder="O texto extraído aparecerá aqui..."
+      ></textarea>
+
+      <button class="btn btn-primary" onclick="extrairDados()">
         Extrair dados automaticamente
       </button>
+
     </div>
 
-    <div id="painel-manual" style="display:none">
-      <div class="hint">Preencha os campos com os dados da nota fiscal.</div>
-      <div class="fields-grid">
-        <div class="field full">
-          <label for="m-emitente">Emitente (cedente)</label>
-          <input id="m-emitente" type="text" placeholder="Nome da empresa emitente">
-        </div>
-        <div class="field full">
-          <label for="m-destinatario">Destinatário (sacado)</label>
-          <input id="m-destinatario" type="text" placeholder="Nome do destinatário">
-        </div>
-        <div class="field">
-          <label for="m-numero">Nº da nota fiscal</label>
-          <input id="m-numero" type="text" placeholder="Ex: 12345">
-        </div>
-        <div class="field">
-          <label for="m-valor">Valor</label>
-          <input id="m-valor" type="text" placeholder="Ex: R$ 1.500,00">
-        </div>
-        <div class="field">
-          <label for="m-vencimento">Vencimento</label>
-          <input id="m-vencimento" type="text" placeholder="DD/MM/AAAA">
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="gerarManual()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Gerar notificação
-      </button>
-    </div>
   </div>
 
-  <!-- ETAPA 2: revisão -->
-  <div class="card" id="card-revisao" style="display:none">
-    <div class="card-label">
-      <span class="step-num">2</span>
-      Conferir dados extraídos
-      <span class="friday-pill" id="friday-pill" style="display:none">📅 Sexta-feira</span>
-    </div>
-
-    <div id="status-box" class="status status-loading" style="display:none">
-      <svg class="spin" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>
-      <span id="status-msg">Identificando os dados...</span>
-    </div>
-
-    <div id="fields-revisao" style="display:none">
-      <div class="fields-grid">
-        <div class="field full">
-          <label for="f-emitente">Emitente (cedente)</label>
-          <input id="f-emitente" type="text" placeholder="—">
-        </div>
-        <div class="field full">
-          <label for="f-destinatario">Destinatário (sacado)</label>
-          <input id="f-destinatario" type="text" placeholder="—">
-        </div>
-        <div class="field">
-          <label for="f-numero">Nº da nota fiscal</label>
-          <input id="f-numero" type="text" placeholder="—">
-        </div>
-        <div class="field">
-          <label for="f-valor">Valor</label>
-          <input id="f-valor" type="text" placeholder="—">
-        </div>
-        <div class="field">
-          <label for="f-vencimento">Vencimento</label>
-          <input id="f-vencimento" type="text" placeholder="—">
-        </div>
-      </div>
-      <div class="edit-hint">✏️ Corrija qualquer campo antes de continuar.</div>
-      <button class="btn btn-primary" onclick="gerarNotificacao()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Confirmar e gerar notificação
-      </button>
-    </div>
+  <div class="footer">
+    SINC v1.0 — PUC Goiás · CMP 1280 Engenharia de Software
   </div>
-
-  <!-- ETAPA 3: notificação gerada -->
-  <div class="card" id="card-notif" style="display:none">
-    <div class="card-label"><span class="step-num">3</span> Texto da notificação</div>
-    <div class="notif-box" id="notif-texto"></div>
-    <button class="btn btn-ghost" style="margin-top:14px" onclick="copiar()">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      Copiar texto
-    </button>
-    <div class="copy-ok" id="copy-ok">✓ Texto copiado para a área de transferência!</div>
-    <div class="divider"></div>
-    <button class="btn btn-ghost" onclick="reiniciar()">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      Processar nova nota fiscal
-    </button>
-  </div>
-
-  <div class="footer">SINC v1.0 — PUC Goiás · CMP 1280 Engenharia de Software</div>
 
 <script>
-  let isFriday = new Date().getDay() === 5;
 
-  // API KEY
-  function getChave() { return localStorage.getItem('sinc_api_key') || ''; }
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
+
+  function getChave() {
+    return localStorage.getItem('sinc_api_key') || '';
+  }
 
   function salvarChave() {
+
     const val = document.getElementById('api-key-input').value.trim();
-    if (!val) { alert('Digite a chave antes de salvar.'); return; }
+
+    if (!val) {
+      alert('Digite a chave.');
+      return;
+    }
+
     localStorage.setItem('sinc_api_key', val);
+
     document.getElementById('api-saved').style.display = 'flex';
   }
 
   window.addEventListener('load', () => {
+
     const k = getChave();
+
     if (k) {
       document.getElementById('api-key-input').value = k;
       document.getElementById('api-saved').style.display = 'flex';
     }
+
+    const pdfUpload = document.getElementById('pdf-upload');
+
+    pdfUpload.addEventListener('change', async (event) => {
+
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      try {
+
+        const textarea = document.getElementById('texto-nf');
+
+        textarea.value = 'Lendo PDF...';
+
+        const reader = new FileReader();
+
+        reader.onload = async function() {
+
+          const typedArray = new Uint8Array(this.result);
+
+          const pdf = await pdfjsLib.getDocument(typedArray).promise;
+
+          let textoCompleto = '';
+
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+
+            textarea.value =
+              `Lendo página ${pageNum} de ${pdf.numPages}...`;
+
+            const page = await pdf.getPage(pageNum);
+
+            const textContent = await page.getTextContent();
+
+            const textoPagina = textContent.items
+              .map(item => item.str)
+              .join(' ');
+
+            textoCompleto += textoPagina + '\n\n';
+          }
+
+          textarea.value = textoCompleto;
+        };
+
+        reader.readAsArrayBuffer(file);
+
+      } catch (erro) {
+
+        console.error(erro);
+
+        alert('Erro ao ler o PDF.');
+
+      }
+
+    });
+
   });
 
-  // TABS
-  function setTab(t) {
-    document.getElementById('tab-texto').className  = 'tab' + (t === 'texto'  ? ' active' : '');
-    document.getElementById('tab-manual').className = 'tab' + (t === 'manual' ? ' active' : '');
-    document.getElementById('painel-texto').style.display  = t === 'texto'  ? 'block' : 'none';
-    document.getElementById('painel-manual').style.display = t === 'manual' ? 'block' : 'none';
-  }
-
-  // EXTRAIR
   async function extrairDados() {
-    const texto = document.getElementById('texto-nf').value.trim();
-    if (!texto) { alert('Cole o texto da nota fiscal antes de continuar.'); return; }
 
-    const chave = getChave();
-    if (!chave) {
-      alert('Configure sua chave da API Anthropic no topo da página para usar a extração automática. Ou use a aba "Preencher manualmente".');
+    const texto = document.getElementById('texto-nf').value.trim();
+
+    if (!texto) {
+      alert('Selecione um PDF primeiro.');
       return;
     }
 
-    const cardRevisao  = document.getElementById('card-revisao');
-    const statusBox    = document.getElementById('status-box');
-    const fieldsRevisao = document.getElementById('fields-revisao');
+    const chave = getChave();
 
-    cardRevisao.style.display = 'block';
-    statusBox.style.display = 'flex';
-    statusBox.className = 'status status-loading';
-    statusBox.innerHTML = '<svg class="spin" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg><span>Identificando os dados da nota fiscal...</span>';
-    fieldsRevisao.style.display = 'none';
-    document.getElementById('btn-extrair').disabled = true;
-
-    if (isFriday) document.getElementById('friday-pill').style.display = 'inline-flex';
+    if (!chave) {
+      alert('Configure sua chave da API Anthropic.');
+      return;
+    }
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': chave,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: `Extraia os dados desta nota fiscal e retorne SOMENTE um JSON válido, sem texto adicional nem markdown:\n{"emitente":"nome do emitente","destinatario":"nome do destinatário","numero":"número da NF","valor":"valor em reais (ex: R$ 1.500,00)","vencimento":"data no formato DD/MM/AAAA"}\nUse null para campos não encontrados.\n\n${texto.substring(0, 3000)}`
-          }]
-        })
-      });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || 'Erro ' + res.status);
-      }
+      const res = await fetch(
+        'https://api.anthropic.com/v1/messages',
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': chave,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+
+          body: JSON.stringify({
+
+            model: 'claude-sonnet-4-20250514',
+
+            max_tokens: 500,
+
+            messages: [{
+              role: 'user',
+
+              content:
+`Extraia os dados desta nota fiscal e retorne SOMENTE JSON:
+
+{
+  "emitente":"",
+  "destinatario":"",
+  "numero":"",
+  "valor":"",
+  "vencimento":""
+}
+
+${texto.substring(0, 3000)}`
+            }]
+          })
+        }
+      );
 
       const data = await res.json();
-      const raw = data.content.map(i => i.text || '').join('').replace(/```json|```/g, '').trim();
-      const campos = JSON.parse(raw);
 
-      document.getElementById('f-emitente').value    = campos.emitente    || '';
-      document.getElementById('f-destinatario').value = campos.destinatario || '';
-      document.getElementById('f-numero').value       = campos.numero      || '';
-      document.getElementById('f-valor').value        = campos.valor       || '';
-      document.getElementById('f-vencimento').value   = campos.vencimento  || '';
+      alert('Dados extraídos com sucesso.');
 
-      statusBox.style.display = 'none';
-      fieldsRevisao.style.display = 'block';
-      cardRevisao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      console.log(data);
 
-    } catch (err) {
-      statusBox.className = 'status status-error';
-      statusBox.innerHTML = '⚠️ Erro: ' + err.message;
-      document.getElementById('btn-extrair').disabled = false;
+    } catch (erro) {
+
+      console.error(erro);
+
+      alert('Erro ao extrair dados.');
+
     }
+
   }
 
-  // GERAR MANUAL
-  function gerarManual() {
-    const e = document.getElementById('m-emitente').value.trim();
-    const d = document.getElementById('m-destinatario').value.trim();
-    const n = document.getElementById('m-numero').value.trim();
-    const v = document.getElementById('m-valor').value.trim();
-    const vc = document.getElementById('m-vencimento').value.trim();
-    if (!e || !d || !n || !v || !vc) { alert('Preencha todos os campos antes de gerar a notificação.'); return; }
-    montar(e, d, n, v, vc);
-  }
-
-  // GERAR PÓS-EXTRAÇÃO
-  function gerarNotificacao() {
-    const e  = document.getElementById('f-emitente').value.trim();
-    const d  = document.getElementById('f-destinatario').value.trim();
-    const n  = document.getElementById('f-numero').value.trim();
-    const v  = document.getElementById('f-valor').value.trim();
-    const vc = document.getElementById('f-vencimento').value.trim();
-    if (!e || !d || !n || !v || !vc) { alert('Todos os campos são obrigatórios. Preencha os que ficaram em branco.'); return; }
-    montar(e, d, n, v, vc);
-  }
-
-  function montar(emitente, destinatario, numero, valor, vencimento) {
-    const boletos = isFriday
-      ? 'Informamos que os boletos serão enviados na segunda-feira.'
-      : 'Informamos que os boletos serão enviados amanhã.';
-
-    const texto =
-`Prezados,
-
-Segue em anexo a Nota Fiscal nº ${numero} para conferência, objeto de antecipação de recebíveis realizada para a ${emitente}.
-
-Solicito, por gentileza, que verifiquem se todos os dados estão de acordo com o que foi combinado e se a mercadoria/serviço já foi devidamente recebida.
-
-Estando tudo certo, pedimos que respondam a este e-mail exprimindo sua ciência da cessão de crédito estabelecida.
-
-Para conferência:
-
-SACADO: ${destinatario}
-CEDENTE: ${emitente}
-NOTA FISCAL Nº: ${numero}
-VALOR: ${valor}
-VENCIMENTO: ${vencimento}
-
-${boletos}`;
-
-    document.getElementById('notif-texto').textContent = texto;
-    document.getElementById('card-notif').style.display = 'block';
-    document.getElementById('card-notif').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  // COPIAR
-  function copiar() {
-    const texto = document.getElementById('notif-texto').textContent;
-    navigator.clipboard.writeText(texto).then(() => {
-      const el = document.getElementById('copy-ok');
-      el.style.display = 'flex';
-      setTimeout(() => { el.style.display = 'none'; }, 3000);
-    });
-  }
-
-  // REINICIAR
-  function reiniciar() {
-    isFriday = new Date().getDay() === 5;
-    document.getElementById('texto-nf').value = '';
-    document.getElementById('btn-extrair').disabled = false;
-    document.getElementById('card-revisao').style.display = 'none';
-    document.getElementById('card-notif').style.display = 'none';
-    document.getElementById('friday-pill').style.display = 'none';
-    document.getElementById('fields-revisao').style.display = 'none';
-    document.getElementById('status-box').style.display = 'none';
-    ['m-emitente','m-destinatario','m-numero','m-valor','m-vencimento',
-     'f-emitente','f-destinatario','f-numero','f-valor','f-vencimento']
-      .forEach(id => document.getElementById(id).value = '');
-    setTab('texto');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 </script>
+
 </body>
 </html>
